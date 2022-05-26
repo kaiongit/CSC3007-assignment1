@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        body {
+            font-family: arial, sans-serif;
+            font-size: 1rem;
+        }
+
+        table {
+            border-spacing: 0;
+            
+            border-style: solid;
+            border-width: 1px;
+            border-color: gainsboro;
+        }
+
+        table thead {
+            background: gainsboro;
+        }
+
+        table tr {
+            outline-style: solid; 
+            outline-width: 1px;
+            outline-color: gainsboro;
+        }
+
+        table th, table td {
+            padding: .5em;
+            min-width: 5em;
+        }
+
+        th.numeric, td.numeric {
+            text-align: right;
+        }
+
+        th:not(.numeric), td:not(.numeric) {
+            text-align: left;
+        }
+
+        .pride {
+            animation: pride-special 2s linear 0s infinite;
+        }
+
+        @keyframes pride-special {
+            from {
+                color: red;
+            }
+            16% {
+                color: orange;
+            }
+            32% {
+                color: yellow;
+            }
+            48% {
+                color: green;
+            }
+            64% {
+                color: blue;
+            }
+            80% {
+                color: indigo;
+            }
+            96% {
+                color: violet;
+            }
+        }
+    </style>
+
+    <script>
+        function parsePSIJson (data) {
+
+            // Grab timestamp
+            let update = new Date(Date.parse(data.items[0].update_timestamp));
+            document.getElementById("update-timestamp").innerHTML = update.toString();
+
+            // Grab readings
+            var readings = data.items[0].readings;
+
+            for (var metric in readings){
+                var values = readings[metric];
+
+                cloneRow(metric, values);
+            }
+
+            document.getElementById("data-cloneable-row").remove();
+        }
+
+        function cloneRow (metricName, values) {
+
+            let tableTbody = document.getElementById("psi-table-tbody");
+            let cloneableRow = document.getElementById("data-cloneable-row");
+
+            let clone = cloneableRow.cloneNode(true);
+
+            clone.id = ""
+
+            clone.getElementsByClassName("data-metric-name").item(0).innerHTML = metricName;
+
+            if (values.hasOwnProperty("national")) {
+                clone.getElementsByClassName("data-national").item(0).innerHTML = values["national"];
+            }
+
+            if (values.hasOwnProperty("central")) {
+                clone.getElementsByClassName("data-central").item(0).innerHTML = values["central"];
+            }
+
+            if (values.hasOwnProperty("west")) {
+                clone.getElementsByClassName("data-west").item(0).innerHTML = values["west"];
+            }
+
+            if (values.hasOwnProperty("east")) {
+                clone.getElementsByClassName("data-east").item(0).innerHTML = values["east"];
+            }
+
+            if (values.hasOwnProperty("north")) {
+                clone.getElementsByClassName("data-north").item(0).innerHTML = values["north"];
+            }
+
+            if (values.hasOwnProperty("south")) {
+                clone.getElementsByClassName("data-south").item(0).innerHTML = values["south"];
+            }
+            
+
+            tableTbody.appendChild(clone);
+        }
+
+
+
+        url = "https://api.data.gov.sg/v1/environment/psi";
+
+        fetch(url).then(function(response) {
+            return response.json();
+
+        }).then(function(data) {
+            parsePSIJson(data);
+
+        })
+        // .catch(function() {
+        //     console.log("Tough luck homie!");
+        //     // is it get fail or js fail
+        // });
+    </script>
+</head>
+
+<body>
+    <main>
+        <p>Last updated: <em id="update-timestamp" class="pride">tomorrow</em></p>
+
+        <table id="psi-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th class="numeric">National</th>
+                    <th class="numeric">Central</th>
+                    <th class="numeric">West</th>
+                    <th class="numeric">East</th>
+                    <th class="numeric">North</th>
+                    <th class="numeric">South</th>
+                </tr>
+            </thead>
+            <tbody id="psi-table-tbody">
+                <tr id="data-cloneable-row">
+                    <td class="data-metric-name">metric_name</td>
+                    <td class="data-national numeric">999</td>
+                    <td class="data-central numeric">999</td>
+                    <td class="data-west numeric">999</td>
+                    <td class="data-east numeric">999</td>
+                    <td class="data-north numeric">999</td>
+                    <td class="data-south numeric">999</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
